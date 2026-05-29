@@ -865,9 +865,8 @@ function buildDemoResult(mw, pue, kwh, region) {
   const pueOpt   = Math.min(safePUE - 0.03, Math.max(1.02, rawOpt));
   // annSave is always non-negative
   const annSave  = Math.max(0, (safePUE - pueOpt) * mw * 8760 * kwh * 1000 * 0.85);
-  const pue      = safePUE; // use validated value from here down
   const insights = isWA
-    ? `With ${mw} MW at PUE ${pue.toFixed(2)}, ERTH OS projects a ${(pue - pueOpt).toFixed(2)}-point PUE reduction worth $${Math.round(annSave / 1000)}K annually through Elwha hydro-thermal coupling.`
+    ? `With ${mw} MW at PUE ${safePUE.toFixed(2)}, ERTH OS projects a ${(safePUE - pueOpt).toFixed(2)}-point PUE reduction worth $${Math.round(annSave / 1000)}K annually through Elwha hydro-thermal coupling.`
     : `CAISO time-of-use pricing creates a ${Math.round(mw * 0.18)} MW demand-response window; ERTH thermal storage absorbs ${Math.round(thermal)}% of peak-hour load at $${(kwh * 1.4).toFixed(3)}/kWh peak rates.`;
   return {
     energy_efficiency_pct: eff, thermal_recovery_pct: thermal,
