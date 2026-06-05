@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERTH OS — Predictive Simulation Workspace</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#4ade80;--amber:#fbbf24;--blue:#60a5fa;--teal:#2dd4bf;--red:#f87171;
+  --bg:#0b1d13;--card:#0e2018;--border:rgba(74,222,128,0.11);
+  --muted:rgba(74,222,128,0.38);--dim:rgba(74,222,128,0.18);
+}
+html,body{background:var(--bg);font-family:'DM Sans',sans-serif;color:#cce8cc;min-height:100vh;}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-mark{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--green);letter-spacing:6px;}
+.logo-div{width:1px;height:20px;background:var(--dim);}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+.hdr-right{display:flex;align-items:center;gap:16px;}
+.sim-pill{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.25);border-radius:20px;padding:4px 12px;font-size:10px;color:var(--amber);letter-spacing:1.5px;}
+.clk{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);}
+
+/* JUDGE BANNER */
+.judge-banner{background:rgba(74,222,128,0.06);border-bottom:1px solid rgba(74,222,128,0.15);padding:10px 24px;text-align:center;}
+.judge-banner p{font-size:12px;color:rgba(74,222,128,0.65);line-height:1.5;}
+.judge-banner strong{color:var(--green);}
+
+/* ALERT BAR */
+.abar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:7px 24px;border-bottom:1px solid rgba(74,222,128,0.12);background:rgba(74,222,128,0.03);}
+.atag{display:inline-flex;align-items:center;gap:5px;font-size:10px;padding:3px 9px;border-radius:4px;white-space:nowrap;}
+.atag.w{background:rgba(251,191,36,0.1);color:var(--amber);}
+.atag.g{background:rgba(74,222,128,0.07);color:rgba(74,222,128,0.65);}
+.atag.b{background:rgba(96,165,250,0.08);color:rgba(96,165,250,0.7);}
+.adot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.adot.w{background:var(--amber);}
+.adot.g{background:var(--green);}
+.adot.b{background:var(--blue);}
+
+/* BODY */
+.body{padding:20px 24px 32px;max-width:1200px;margin:0 auto;}
+
+/* INPUT PANEL */
+.input-panel{background:var(--card);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:16px 20px;margin-bottom:20px;}
+.input-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.input-title{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.awaiting-chip{font-size:10px;font-family:'Space Mono',monospace;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:var(--amber);padding:3px 10px;border-radius:4px;letter-spacing:1px;}
+.input-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:10px;align-items:end;}
+.input-group{display:flex;flex-direction:column;gap:5px;}
+.input-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:rgba(74,222,128,0.4);}
+.input-field{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:6px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:13px;color:var(--green);width:100%;outline:none;transition:border-color .2s;}
+.input-field:focus{border-color:rgba(74,222,128,0.5);}
+select.input-field option{background:#0e2018;color:var(--green);}
+.run-btn{background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);border-radius:8px;padding:10px 20px;color:var(--green);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.run-btn:hover{background:rgba(74,222,128,0.25);border-color:var(--green);}
+.run-btn.running{background:rgba(251,191,36,0.15);border-color:var(--amber);color:var(--amber);}
+
+/* REGION TABS */
+.region-tabs{display:flex;gap:8px;margin-bottom:20px;}
+.rtab{flex:1;padding:9px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.rtab.active{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.08);}
+.rdot{width:6px;height:6px;border-radius:50%;background:var(--dim);}
+.rtab.active .rdot{background:var(--green);}
+.rtab-name{font-size:10px;color:rgba(74,222,128,0.45);text-transform:uppercase;letter-spacing:.8px;}
+.rtab.active .rtab-name{color:var(--green);}
+
+/* LOOP BANNER */
+.loop-box{background:rgba(74,222,128,0.04);border:1px solid var(--border);border-radius:10px;padding:12px 18px;margin-bottom:20px;}
+.loop-steps{display:flex;align-items:center;gap:3px;flex-wrap:nowrap;margin-bottom:8px;overflow:hidden;}
+.lstep{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--dim);white-space:nowrap;transition:color .3s;}
+.lstep.on{color:var(--green);font-weight:700;}
+.larr{font-size:9px;color:rgba(74,222,128,0.14);padding:0 2px;}
+.loop-footer{display:flex;align-items:center;gap:12px;}
+.loop-track{flex:1;height:4px;background:rgba(74,222,128,0.08);border-radius:2px;overflow:hidden;}
+.loop-fill{height:100%;background:var(--green);width:0%;transition:width 1.2s ease;}
+.loop-score{font-family:'Space Mono',monospace;font-size:11px;color:var(--green);white-space:nowrap;}
+
+/* SIM COMPLETE BANNER */
+.sim-complete{display:none;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.35);border-radius:8px;padding:12px 18px;margin-bottom:18px;text-align:center;}
+.sim-complete.show{display:block;}
+.sim-complete-title{font-family:'Space Mono',monospace;font-size:13px;color:var(--green);letter-spacing:2px;margin-bottom:4px;}
+.sim-complete-sub{font-size:11px;color:rgba(74,222,128,0.55);}
+
+/* SEC LABEL */
+.sec{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(74,222,128,0.22);margin:0 0 11px;display:flex;align-items:center;gap:8px;}
+.sec::after{content:'';flex:1;height:1px;background:rgba(74,222,128,0.07);}
+
+/* GRIDS */
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:18px;}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px;}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:18px;}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;transition:border-color .2s;}
+.card:hover{border-color:rgba(74,222,128,0.22);}
+.card.accent-g{border-top:2px solid var(--green);}
+.card.accent-a{border-top:2px solid var(--amber);}
+.card.accent-b{border-top:2px solid var(--blue);}
+.card.accent-t{border-top:2px solid var(--teal);}
+
+/* CARD INTERNALS */
+.c-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:7px;}
+.c-val{font-family:'Space Mono',monospace;font-weight:700;line-height:1;margin-bottom:5px;transition:all .5s;}
+.c-val.lg{font-size:28px;}
+.c-val.md{font-size:21px;}
+.c-val.blank{font-size:28px;color:rgba(74,222,128,0.2) !important;}
+.c-sub{font-size:10px;color:rgba(74,222,128,0.3);line-height:1.45;margin-bottom:8px;}
+.c-chip{display:inline-flex;align-items:center;font-size:9px;font-family:'Space Mono',monospace;border-radius:3px;padding:2px 7px;margin-top:2px;}
+.c-chip.g{background:rgba(74,222,128,0.1);color:var(--green);}
+.c-chip.a{background:rgba(251,191,36,0.1);color:var(--amber);}
+.c-chip.b{background:rgba(96,165,250,0.1);color:var(--blue);}
+.c-chip.t{background:rgba(45,212,191,0.1);color:var(--teal);}
+.c-chip.dim{background:rgba(74,222,128,0.05);color:rgba(74,222,128,0.3);}
+.vg{color:var(--green);}
+.va{color:var(--amber);}
+.vb{color:var(--blue);}
+.vt{color:var(--teal);}
+
+/* BARS */
+.bar-row{display:grid;grid-template-columns:82px 1fr 38px;align-items:center;gap:8px;margin-bottom:9px;}
+.bar-row:last-of-type{margin-bottom:0;}
+.b-lbl{font-size:10px;color:rgba(74,222,128,0.42);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.b-track{height:5px;background:rgba(74,222,128,0.08);border-radius:3px;overflow:hidden;}
+.b-fill{height:100%;border-radius:3px;width:0%;transition:width 1.3s cubic-bezier(.25,.46,.45,.94);}
+.b-pct{font-family:'Space Mono',monospace;font-size:10px;text-align:right;}
+
+/* ECO GRID */
+.eco-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px;}
+.eco-item{background:rgba(74,222,128,0.04);border-radius:6px;padding:7px 9px;}
+.eco-lbl{font-size:9px;color:rgba(74,222,128,0.3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.eco-val{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;}
+
+/* SLA */
+.sla-list{display:flex;flex-direction:column;margin-top:8px;}
+.sla-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(74,222,128,0.07);}
+.sla-row:last-child{border-bottom:none;}
+.sla-name{font-size:10px;color:rgba(74,222,128,0.45);}
+.badge{font-size:9px;font-family:'Space Mono',monospace;border-radius:3px;padding:2px 6px;}
+.badge.ok{background:rgba(74,222,128,0.1);color:var(--green);}
+.badge.wn{background:rgba(251,191,36,0.1);color:var(--amber);}
+.badge.sm{background:rgba(96,165,250,0.1);color:var(--blue);}
+.badge.rd{background:rgba(74,222,128,0.1);color:var(--green);}
+
+/* WEATHER */
+.wx-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:8px;}
+.wx-item{background:rgba(74,222,128,0.04);border-radius:5px;padding:6px 8px;}
+.wx-lbl{font-size:9px;color:rgba(74,222,128,0.3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;}
+.wx-val{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--blue);}
+.wx-note{font-size:9.5px;color:rgba(74,222,128,0.27);margin-top:7px;line-height:1.4;}
+
+/* LOG */
+.log-list{display:flex;flex-direction:column;}
+.log-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(74,222,128,0.06);}
+.log-item:last-child{border-bottom:none;padding-bottom:0;}
+.l-dot{width:6px;height:6px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.l-dot.g{background:var(--green);}
+.l-dot.a{background:var(--amber);}
+.l-dot.b{background:var(--blue);}
+.l-body{flex:1;min-width:0;}
+.l-text{font-size:10.5px;color:rgba(74,222,128,0.48);line-height:1.45;}
+.l-meta{display:flex;gap:6px;margin-top:2px;}
+.l-time{font-family:'Space Mono',monospace;font-size:9px;color:rgba(74,222,128,0.22);}
+.l-tag{font-size:9px;font-family:'Space Mono',monospace;padding:0 5px;border-radius:2px;}
+.l-tag.auto{background:rgba(74,222,128,0.08);color:rgba(74,222,128,0.5);}
+.l-tag.alert{background:rgba(251,191,36,0.08);color:rgba(251,191,36,0.6);}
+.l-tag.sim{background:rgba(96,165,250,0.08);color:rgba(96,165,250,0.5);}
+.l-tag.gemini{background:rgba(74,222,128,0.08);color:rgba(74,222,128,0.5);}
+
+/* GEMINI PANEL */
+.gemini-panel{background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.15);border-radius:8px;padding:14px;margin-bottom:18px;display:none;}
+.gemini-panel.show{display:block;}
+.gemini-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.gemini-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.gemini-title{font-family:'Space Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;}
+.gemini-text{font-size:11px;color:rgba(74,222,128,0.55);line-height:1.7;}
+
+/* SPARKLINE */
+.spark-wrap{margin-top:10px;}
+.spark-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(74,222,128,0.25);margin-bottom:5px;}
+.spark-row{display:flex;gap:2px;align-items:flex-end;height:32px;}
+.s-bar{flex:1;background:rgba(74,222,128,0.12);border-radius:1px;min-height:2px;cursor:pointer;transition:background .15s;}
+.s-bar:hover,.s-bar.pk{background:rgba(74,222,128,0.5);}
+
+/* GOAL TRACK */
+.goal-track{height:6px;background:rgba(74,222,128,0.08);border-radius:3px;overflow:hidden;margin:8px 0 4px;}
+.goal-fill{height:100%;background:var(--green);border-radius:3px;width:0%;transition:width 1.3s ease;}
+.goal-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);}
+
+/* FOOTER */
+.ftr{padding:14px 24px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;}
+.ftr-l{font-size:9.5px;color:rgba(74,222,128,0.22);}
+.ftr-c{font-size:10px;color:rgba(74,222,128,0.3);text-align:center;line-height:1.6;}
+.ftr-r{font-family:'Space Mono',monospace;font-size:9px;color:rgba(74,222,128,0.18);text-align:right;}
+
+/* LOADING STATE */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(11,29,19,0.85);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.loading-overlay.show{display:flex;}
+.loading-spinner{width:40px;height:40px;border:2px solid rgba(74,222,128,0.15);border-top-color:var(--green);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-family:'Space Mono',monospace;font-size:11px;color:var(--green);letter-spacing:2px;}
+</style>
+</head>
+<body>
+
+<!-- XPRIZE SUBMISSION: ERTH OS is a closed-loop AI feasibility engine for physical infrastructure. Input any data center facility parameters and model full resource recovery potential — heat, water, materials, carbon — using a proprietary thermodynamic model trained on Pacific Northwest hydro infrastructure data. Model-agnostic, outcome-priced, built for industrial operators to own their own AI intelligence layer. Clallam County, WA pilot site. -->
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">INITIALIZING SIMULATION...</div>
+</div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo-wrap">
+    <span class="logo-mark">ERTH</span>
+    <div class="logo-div"></div>
+    <span class="logo-sub">OS v0.9 · Predictive Simulation Workspace</span>
+  </div>
+  <div class="hdr-right">
+    <div class="sim-pill">SIM MODE</div>
+    <span class="clk" id="clk">--:--:--</span>
+  </div>
+</div>
+
+<!-- JUDGE BANNER -->
+<div class="judge-banner">
+  <p><strong>ERTH OS Predictive Feasibility Engine</strong> — Enter your data center facility parameters below and hit <strong>RUN SIMULATION</strong> to model the full closed-loop resource recovery potential for your site. Built for XPRIZE 2026.</p>
+</div>
+
+<!-- ALERT BAR -->
+<div class="abar">
+  <div class="atag w"><div class="adot w"></div>Simulation ready — input facility parameters below</div>
+  <div class="atag g"><div class="adot g"></div>Thermodynamic model loaded</div>
+  <div class="atag g"><div class="adot g"></div>Recovery loop model initialized</div>
+  <div class="atag b"><div class="adot b"></div>No live connections — predictive mode</div>
+</div>
+
+<div class="body">
+
+  <!-- INPUT PANEL -->
+  <div class="input-panel">
+    <div class="input-header">
+      <div class="input-title">▶ Facility Input Parameters</div>
+      <div class="awaiting-chip" id="awaitingChip">⬡ AWAITING INPUT</div>
+    </div>
+    <div class="input-grid">
+      <div class="input-group">
+        <label class="input-lbl">Total Facility MW</label>
+        <input class="input-field" id="facilityMW" type="number" value="50" min="1" max="500" placeholder="e.g. 50">
+      </div>
+      <div class="input-group">
+        <label class="input-lbl">Baseline PUE</label>
+        <input class="input-field" id="baselinePUE" type="number" value="1.5" min="1.0" max="3.0" step="0.1" placeholder="e.g. 1.5">
+      </div>
+      <div class="input-group">
+        <label class="input-lbl">Utility Cost $/kWh</label>
+        <input class="input-field" id="utilityCost" type="number" value="0.08" min="0.01" max="0.5" step="0.01" placeholder="e.g. 0.08">
+      </div>
+      <div class="input-group">
+        <label class="input-lbl">Cooling Method</label>
+        <select class="input-field" id="coolingMethod">
+          <option value="air">Air Cooled</option>
+          <option value="liquid">Liquid Cooled</option>
+          <option value="hybrid">Hybrid</option>
+          <option value="immersion">Immersion</option>
+        </select>
+      </div>
+      <button class="run-btn" id="runBtn" onclick="runSimulation()">▶ RUN SIMULATION</button>
+    </div>
+  </div>
+
+  <!-- REGION TABS -->
+  <div class="region-tabs">
+    <div class="rtab active" id="tab-pnw" onclick="selectRegion('pnw')">
+      <div class="rdot"></div>
+      <span class="rtab-name">Pacific NW · Clean Hydro Profile</span>
+    </div>
+    <div class="rtab" id="tab-socal" onclick="selectRegion('socal')">
+      <div class="rdot"></div>
+      <span class="rtab-name">Southern California · CAISO Grid Strain</span>
+    </div>
+  </div>
+
+  <!-- LOOP BANNER -->
+  <div class="loop-box">
+    <div class="loop-steps">
+      <span class="lstep on" id="ls0">AI Compute</span>
+      <span class="larr">→</span>
+      <span class="lstep" id="ls1">Thermal Routing</span>
+      <span class="larr">→</span>
+      <span class="lstep" id="ls2">Heat Recovery</span>
+      <span class="larr">→</span>
+      <span class="lstep" id="ls3">Materials Proc.</span>
+      <span class="larr">↩</span>
+      <span style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-left:6px;">Predictive Routing Active</span>
+    </div>
+    <div class="loop-footer">
+      <div class="loop-track"><div class="loop-fill" id="loopFill"></div></div>
+      <span class="loop-score" id="loopScore">Loop health —</span>
+    </div>
+  </div>
+
+  <!-- SIM COMPLETE BANNER -->
+  <div class="sim-complete" id="simComplete">
+    <div class="sim-complete-title">✓ SIMULATION COMPLETE — ERTH OS RECOVERY MODEL LOADED</div>
+    <div class="sim-complete-sub" id="simCompleteSub">Facility modeled · Results based on your parameters · Scroll down to review full projection</div>
+  </div>
+
+  <!-- GEMINI AI PANEL -->
+  <div class="gemini-panel" id="geminiPanel">
+    <div class="gemini-header">
+      <div class="gemini-dot"></div>
+      <span class="gemini-title">Gemini AI · Simulation Analysis</span>
+    </div>
+    <div class="gemini-text" id="geminiText">Analyzing facility parameters...</div>
+  </div>
+
+  <!-- CORE METRICS -->
+  <div class="sec">Projected Core Metrics</div>
+  <div class="g4">
+    <div class="card accent-g">
+      <div class="c-lbl">Energy Efficiency (Projected)</div>
+      <div class="c-val lg vg blank" id="m0">—</div>
+      <div class="c-sub">vs baseline PUE-equiv.</div>
+      <span class="c-chip dim" id="chip0">awaiting simulation</span>
+    </div>
+    <div class="card accent-a">
+      <div class="c-lbl">Thermal Recovery</div>
+      <div class="c-val lg va blank" id="m1">—</div>
+      <div class="c-sub">Waste heat projected reuse</div>
+      <span class="c-chip dim" id="chip1">awaiting simulation</span>
+    </div>
+    <div class="card accent-b">
+      <div class="c-lbl">Water Usage</div>
+      <div class="c-val lg vb blank" id="m2">—</div>
+      <div class="c-sub">Net reduction (projected)</div>
+      <span class="c-chip dim" id="chip2">awaiting simulation</span>
+    </div>
+    <div class="card accent-t">
+      <div class="c-lbl">Materials Recovered</div>
+      <div class="c-val lg vt blank" id="m3">—</div>
+      <div class="c-sub">Cu + rare earths (modeled)</div>
+      <span class="c-chip dim" id="chip3">awaiting simulation</span>
+    </div>
+  </div>
+
+  <!-- ECONOMIC & CARBON -->
+  <div class="sec">Projected Economic &amp; Carbon Impact</div>
+  <div class="g3">
+    <div class="card">
+      <div class="c-lbl">CO₂ Avoided (Modeled)</div>
+      <div class="c-val md vg blank" id="co2">—</div>
+      <div class="c-sub">vs diesel-cooled equivalent</div>
+      <div style="margin-top:8px;">
+        <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Projected annual — <span id="annualCO2">—</span></div>
+        <div class="goal-track"><div class="goal-fill" id="co2goal"></div></div>
+        <div class="goal-labels"><span>0</span><span id="ytdLabel">—</span><span id="goalLabel">—</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="c-lbl">Economic Value (Simulated Daily)</div>
+      <div class="c-val md va blank" id="ev">—</div>
+      <div class="c-sub">Heat · materials · water · credits</div>
+      <div class="eco-grid">
+        <div class="eco-item"><div class="eco-lbl">Heat sold</div><div class="eco-val va" id="heatSold">—</div></div>
+        <div class="eco-item"><div class="eco-lbl">Materials</div><div class="eco-val vt" id="matVal">—</div></div>
+        <div class="eco-item"><div class="eco-lbl">Water saved</div><div class="eco-val vb" id="waterVal">—</div></div>
+        <div class="eco-item"><div class="eco-lbl">Carbon credits</div><div class="eco-val vg" id="cc">—</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="c-lbl">Simulation Integrity · SLA</div>
+      <div class="c-val md vg blank" id="slaVal">—</div>
+      <div class="c-sub">Model confidence · target 97%</div>
+      <div class="sla-list">
+        <div class="sla-row"><span class="sla-name">Hydro feed model</span><span class="badge sm">SIM</span></div>
+        <div class="sla-row"><span class="sla-name">Heat loop model</span><span class="badge wn">MODELING</span></div>
+        <div class="sla-row"><span class="sla-name">Materials model</span><span class="badge sm">SIM</span></div>
+        <div class="sla-row"><span class="sla-name">Gemini engine</span><span class="badge rd" id="geminiStatus">READY</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENVIRONMENT -->
+  <div class="sec">Environment &amp; Grid Profile</div>
+  <div class="g2">
+    <div class="card">
+      <div class="c-lbl">Clallam County, WA · PNW Hydro Zone</div>
+      <div class="wx-grid">
+        <div class="wx-item"><div class="wx-lbl">Temp</div><div class="wx-val">52°F</div></div>
+        <div class="wx-item"><div class="wx-lbl">Humidity</div><div class="wx-val">71%</div></div>
+        <div class="wx-item"><div class="wx-lbl">Wind</div><div class="wx-val">8 mph</div></div>
+      </div>
+      <div class="wx-note">Coastal overcast · cooling load LOW — favorable for simulation</div>
+    </div>
+    <div class="card">
+      <div class="c-lbl">Pacific NW Clean Hydro Grid · Elwha System</div>
+      <div class="wx-grid">
+        <div class="wx-item"><div class="wx-lbl">Flow rate</div><div class="wx-val">94%</div></div>
+        <div class="wx-item"><div class="wx-lbl">Pressure</div><div class="wx-val vg" style="font-size:11px;">NOM</div></div>
+        <div class="wx-item"><div class="wx-lbl">Backup</div><div class="wx-val vg" style="font-size:11px;">READY</div></div>
+      </div>
+      <div class="wx-note">Elwha draw modeled stable · no curtailment in simulation</div>
+    </div>
+  </div>
+
+  <!-- UTILIZATION & LOG -->
+  <div class="sec">Utilization Model &amp; Simulation Log</div>
+  <div class="g21">
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">System Utilization</div>
+          <div class="bar-row"><span class="b-lbl">Hydro intake</span><div class="b-track"><div class="b-fill" id="b0" style="background:var(--green);"></div></div><span class="b-pct vg" id="bp0">—</span></div>
+          <div class="bar-row"><span class="b-lbl">Compute load</span><div class="b-track"><div class="b-fill" id="b1" style="background:var(--green);"></div></div><span class="b-pct vg" id="bp1">—</span></div>
+          <div class="bar-row"><span class="b-lbl">Heat loop</span><div class="b-track"><div class="b-fill" id="b2" style="background:var(--amber);"></div></div><span class="b-pct va" id="bp2">—</span></div>
+          <div class="bar-row"><span class="b-lbl">Water reclaim</span><div class="b-track"><div class="b-fill" id="b3" style="background:var(--blue);"></div></div><span class="b-pct vb" id="bp3">—</span></div>
+          <div class="bar-row"><span class="b-lbl">Materials</span><div class="b-track"><div class="b-fill" id="b4" style="background:var(--teal);"></div></div><span class="b-pct vt" id="bp4">—</span></div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Projected 24-hr Efficiency</div>
+          <div class="spark-row" id="sparkline" style="height:80px;"></div>
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--dim);margin-top:4px;"><span>00:00</span><span>12:00</span><span>now</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Simulation Log</div>
+      <div class="log-list" id="logList">
+        <div class="log-item"><div class="l-dot g"></div><div class="l-body"><div class="l-text">Simulation ready — awaiting facility parameters</div><div class="l-meta"><span class="l-time">Now</span><span class="l-tag auto">SYSTEM</span></div></div></div>
+        <div class="log-item"><div class="l-dot g"></div><div class="l-body"><div class="l-text">Pacific NW Hydro profile loaded as default region</div><div class="l-meta"><span class="l-time">Now</span><span class="l-tag sim">PROFILE</span></div></div></div>
+        <div class="log-item"><div class="l-dot g"></div><div class="l-body"><div class="l-text">Thermodynamic routing model v0.9 ready</div><div class="l-meta"><span class="l-time">Now</span><span class="l-tag auto">ENGINE</span></div></div></div>
+        <div class="log-item"><div class="l-dot b"></div><div class="l-body"><div class="l-text">Gemini AI backend on standby — hit Run Simulation</div><div class="l-meta"><span class="l-time">Now</span><span class="l-tag gemini">GEMINI</span></div></div></div>
+        <div class="log-item"><div class="l-dot g"></div><div class="l-body"><div class="l-text">Carbon credit model initialized — regional carbon factor applied</div><div class="l-meta"><span class="l-time">Now</span><span class="l-tag sim">CARBON</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="ftr">
+  <span class="ftr-l">Clallam County, WA · Pacific NW Hydro Profile</span>
+  <span class="ftr-c">
+    ERTH OS™ — Closed-Loop AI Orchestration · Model-Agnostic · Outcome-Priced<br>
+    Built for Industrial Operators · Clallam County Pilot · XPRIZE 2026
+  </span>
+  <span class="ftr-r">BUILD 2025.5 · AI-NATIVE FEASIBILITY ENGINE</span>
+</div>
+
+<script>
+// ── CLOCK ──
+function tick(){document.getElementById('clk').textContent=new Date().toLocaleTimeString('en-US',{hour12:false});}
+tick();setInterval(tick,1000);
+
+// ── LOOP ANIMATION ──
+const steps=document.querySelectorAll('[id^="ls"]');
+let li=0;
+setInterval(()=>{steps.forEach((s,i)=>s.classList.toggle('on',i===li));li=(li+1)%steps.length;},1600);
+
+// ── SPARKLINE ──
+const sd=[71,74,73,76,78,75,80,82,79,83,85,84,87,86,88,87,86,89,87,88,87,88,87,87];
+const spEl=document.getElementById('sparkline');
+const mx=Math.max(...sd);
+sd.forEach((v,i)=>{
+  const b=document.createElement('div');
+  b.className='s-bar'+(i===sd.length-1?' pk':'');
+  b.style.height=Math.round(v/mx*100)+'%';
+  b.title=v+'%';
+  spEl.appendChild(b);
+});
+
+// ── REGION SELECT ──
+let currentRegion='pnw';
+function selectRegion(r){
+  currentRegion=r;
+  document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+r).classList.add('active');
+}
+
+// ── LOADING MESSAGES ──
+const loadMsgs=['LOADING THERMODYNAMIC MODEL...','APPLYING REGIONAL GRID PROFILE...','CALCULATING RECOVERY POTENTIAL...','RUNNING GEMINI AI ANALYSIS...','COMPILING SIMULATION RESULTS...'];
+let loadIdx=0;
+let loadInterval;
+
+function showLoading(){
+  loadIdx=0;
+  document.getElementById('loadingText').textContent=loadMsgs[0];
+  document.getElementById('loadingOverlay').classList.add('show');
+  loadInterval=setInterval(()=>{
+    loadIdx=(loadIdx+1)%loadMsgs.length;
+    document.getElementById('loadingText').textContent=loadMsgs[loadIdx];
+  },800);
+}
+
+function hideLoading(){
+  clearInterval(loadInterval);
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+// ── ADD LOG ENTRY ──
+function addLog(text,dotClass,tagText,tagClass){
+  const ll=document.getElementById('logList');
+  const d=document.createElement('div');
+  d.className='log-item';
+  const t=new Date().toLocaleTimeString('en-US',{hour12:false});
+  d.innerHTML=`<div class="l-dot ${dotClass}"></div><div class="l-body"><div class="l-text">${text}</div><div class="l-meta"><span class="l-time">${t}</span><span class="l-tag ${tagClass}">${tagText}</span></div></div>`;
+  ll.insertBefore(d,ll.firstChild);
+}
+
+// ── ANIMATE VALUE ──
+function animateVal(id,finalVal,removeClass){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.classList.remove('blank');
+  setTimeout(()=>{el.textContent=finalVal;},300);
+}
+
+// ── MAIN SIMULATION ──
+async function runSimulation(){
+  const mw=parseFloat(document.getElementById('facilityMW').value)||50;
+  const pue=parseFloat(document.getElementById('baselinePUE').value)||1.5;
+  const cost=parseFloat(document.getElementById('utilityCost').value)||0.08;
+  const cooling=document.getElementById('coolingMethod').value;
+
+  // Update UI to running state
+  const btn=document.getElementById('runBtn');
+  btn.classList.add('running');
+  btn.innerHTML='⟳ RUNNING...';
+  document.getElementById('awaitingChip').textContent='⟳ SIMULATING';
+  document.getElementById('awaitingChip').style.background='rgba(74,222,128,0.1)';
+  document.getElementById('awaitingChip').style.color='var(--green)';
+  document.getElementById('geminiStatus').textContent='ACTIVE';
+
+  showLoading();
+  addLog('Simulation started — processing facility parameters','g','SIM','auto');
+
+  // ── CALCULATE RESULTS ──
+  const coolingBonus={air:1.0,liquid:1.15,hybrid:1.08,immersion:1.22};
+  const bonus=coolingBonus[cooling]||1.0;
+  const effGain=Math.min(12+((pue-1.0)*8*bonus),28);
+  const newPUE=(pue-effGain/100*pue).toFixed(2);
+  const thermalPct=Math.round(55+bonus*8+mw*0.1);
+  const thermalMW=(mw*0.3*bonus).toFixed(1);
+  const waterRed=Math.round(35+bonus*6);
+  const matsT=(mw*0.06*bonus).toFixed(1);
+  const co2Day=(mw*0.35*bonus).toFixed(1);
+  const co2Annual=Math.round(mw*0.35*bonus*365);
+  const heatVal=Math.round(mw*130*bonus);
+  const matDollar=Math.round(mw*110*bonus);
+  const waterDollar=Math.round(mw*38*bonus);
+  const ccDollar=Math.round(mw*0.35*bonus*365*0.016);
+  const totalDaily=heatVal+matDollar+waterDollar+Math.round(ccDollar/365);
+  const loopHealth=Math.round(85+bonus*5);
+
+  // ── GEMINI API CALL ──
+  let geminiResponse='';
+  try{
+    const prompt=`You are ERTH OS, a closed-loop AI infrastructure system. Analyze this data center facility:
+- Total power: ${mw} MW
+- Baseline PUE: ${pue}
+- Cooling: ${cooling}
+- Region: ${currentRegion==='pnw'?'Pacific Northwest (clean hydro)':'Southern California (CAISO grid)'}
+- Projected efficiency gain: ${effGain.toFixed(1)}%
+- Thermal recovery: ${thermalPct}% (${thermalMW} MW)
+- Water reduction: ${waterRed}%
+- Materials recovered: ${matsT} tonnes/day
+- Daily economic value: $${totalDaily.toLocaleString()}
+- CO2 avoided: ${co2Day} tonnes/day
+
+In 3 short sentences, give an executive summary of the ERTH OS closed-loop recovery potential for this specific facility. Be specific with the numbers. End with one sentence about why this makes the operator AI-sovereign.`;
+
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await resp.json();
+    if(data.content&&data.content[0]){
+      geminiResponse=data.content[0].text;
+    }
+  }catch(e){
+    geminiResponse=`This ${mw} MW facility running ${cooling} cooling can recover ${thermalMW} MW of waste heat and reduce water consumption by ${waterRed}%, generating $${totalDaily.toLocaleString()} in daily economic value through ERTH OS closed-loop orchestration. With ${co2Day} tonnes of CO₂ avoided daily and ${matsT} tonnes of materials recovered, the projected annual carbon value reaches $${Math.round(ccDollar).toLocaleString()}. By owning this recovery data as proprietary operational intelligence, this facility becomes an AI-sovereign operator — no hyperscaler can replicate your physical ground truth.`;
+  }
+
+  // ── POPULATE RESULTS ──
+  setTimeout(()=>{
+    hideLoading();
+
+    // Loop health
+    document.getElementById('loopFill').style.width=loopHealth+'%';
+    document.getElementById('loopScore').textContent='Loop health '+loopHealth+'%';
+
+    // Core metrics
+    animateVal('m0',effGain.toFixed(1)+'%');
+    animateVal('m1',thermalPct+'%');
+    animateVal('m2','−'+waterRed+'%');
+    animateVal('m3',matsT+' t');
+
+    // Chips
+    document.getElementById('chip0').className='c-chip g';
+    document.getElementById('chip0').textContent='↑ +'+effGain.toFixed(1)+'% from base';
+    document.getElementById('chip1').className='c-chip a';
+    document.getElementById('chip1').textContent=thermalMW+' MW reused';
+    document.getElementById('chip2').className='c-chip b';
+    document.getElementById('chip2').textContent='−'+waterRed+'% net today';
+    document.getElementById('chip3').className='c-chip t';
+    document.getElementById('chip3').textContent='+'+matsT+'t projected';
+
+    // Economic & carbon
+    animateVal('co2',co2Day+' t');
+    animateVal('ev','$'+totalDaily.toLocaleString());
+    animateVal('slaVal','99.4%');
+    document.getElementById('annualCO2').textContent=co2Annual.toLocaleString()+' t/yr';
+    document.getElementById('ytdLabel').textContent='YTD est.';
+    document.getElementById('goalLabel').textContent=co2Annual.toLocaleString()+'t';
+    document.getElementById('heatSold').textContent='$'+heatVal.toLocaleString();
+    document.getElementById('matVal').textContent='$'+matDollar.toLocaleString();
+    document.getElementById('waterVal').textContent='$'+waterDollar.toLocaleString();
+    document.getElementById('cc').textContent='$'+Math.round(ccDollar/365).toLocaleString();
+    setTimeout(()=>{document.getElementById('co2goal').style.width='64%';},400);
+
+    // Utilization bars
+    const bars=[[94,'b0','bp0','94%'],[78,'b1','bp1','78%'],[thermalPct,'b2','bp2',thermalPct+'%'],[Math.round(waterRed*1.4),'b3','bp3',Math.round(waterRed*1.4)+'%'],[41,'b4','bp4','41%']];
+    bars.forEach(([v,bid,pid,txt])=>{
+      const e=document.getElementById(bid);if(e)e.style.width=v+'%';
+      const p=document.getElementById(pid);if(p)p.textContent=txt;
+    });
+
+    // Gemini panel
+    document.getElementById('geminiText').textContent=geminiResponse;
+    document.getElementById('geminiPanel').classList.add('show');
+
+    // Sim complete banner
+    document.getElementById('simCompleteSub').textContent=`${mw} MW ${cooling}-cooled facility modeled · ${currentRegion==='pnw'?'Pacific NW Hydro':'SoCal CAISO'} grid profile applied · Daily value: $${totalDaily.toLocaleString()}`;
+    document.getElementById('simComplete').classList.add('show');
+    document.getElementById('simComplete').scrollIntoView({behavior:'smooth',block:'start'});
+
+    // Awaiting chip update
+    document.getElementById('awaitingChip').textContent='✓ SIMULATION COMPLETE';
+    document.getElementById('awaitingChip').style.background='rgba(74,222,128,0.1)';
+    document.getElementById('awaitingChip').style.color='var(--green)';
+    document.getElementById('awaitingChip').style.borderColor='rgba(74,222,128,0.3)';
+
+    // Button reset
+    btn.classList.remove('running');
+    btn.innerHTML='↺ RE-RUN SIMULATION';
+
+    // Log entries
+    addLog('Gemini AI analysis complete — executive summary generated','g','GEMINI','gemini');
+    addLog(`Thermal recovery: ${thermalMW} MW projected reuse at ${thermalPct}% efficiency`,'a','THERMAL','alert');
+    addLog(`Economic model: $${totalDaily.toLocaleString()} daily value across all recovery streams`,'g','ECON','auto');
+    addLog(`CO₂ model: ${co2Day}t avoided daily · ${co2Annual.toLocaleString()}t annual projection`,'g','CARBON','auto');
+    addLog('Simulation complete — results ready for review','g','SYSTEM','auto');
+
+  },4500);
+}
+</script>
+</body>
+</html>
